@@ -1,6 +1,6 @@
 var canReflect = require("can-reflect");
 
-module.exports = function updateExceptId(obj, data, schema) {
+module.exports = function updateExceptIdentity(obj, data, schema) {
     if(!schema) {
         schema = canReflect.getSchema(obj);
     }
