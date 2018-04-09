@@ -116,4 +116,6 @@ function applyPatch( list, patch, makeInstance ){
 	return list;
 }
 
+smartMerge.applyPatch = applyPatch;
+
 module.exports = smartMerge;

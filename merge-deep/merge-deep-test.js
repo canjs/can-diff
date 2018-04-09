@@ -65,7 +65,7 @@ function prop(prop){
 	};
 }
 
-QUnit.module('helpers map-deep-merge', {
+QUnit.module('can-diff/merge-deep', {
 	setup: function(){
 
 		onPatches = [];
@@ -150,6 +150,41 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	assert.equal(onPatches.length, 1, 'one patch for the insertion '+JSON.stringify(onPatches));
 	assert.deepEqual(onPatches[0].patch, {type: "splice", deleteCount: 0, index: 1, insert: [item.osProjects[1]]}, 'should dispatch correct events: add, length (for insertion)');
 });
+
+QUnit.test("mergeInstance when properties are removed and added", function(){
+	var map = new DefineMap({a:"A"});
+	smartMerge(map, {b: "B"});
+
+	QUnit.deepEqual(map.get(), {b: "B"});
+});
+
+QUnit.test("Merging non-defined, but object, types", function(){
+	var first = new Date();
+	var last = new Date();
+	var map = new DefineMap({a: first});
+	smartMerge(map, {a: last});
+
+	QUnit.equal(map.a, last);
+});
+
+QUnit.test('applyPatch', function(assert) {
+	assert.deepEqual( smartMerge.applyPatch(
+		[1,2,3],
+		{index: 1, deleteCount: 0, insert: [4]}
+	), [1,4,2,3], 'Patch insert' );
+
+	assert.deepEqual( smartMerge.applyPatch(
+		[1,2,3],
+		{index: 1, deleteCount: 2, insert: [4]}
+	), [1,4], 'Patch delete/insert');
+
+	assert.deepEqual( smartMerge.applyPatch(
+		[1,2,3],
+		{index: 1, deleteCount: 0, insert: [4]},
+		function(a) { return a * 10; }
+	), [1,40,2,3], 'Patch with makeInstance');
+});
+
 /*
 QUnit.test('smartMerge can-connect behavior', function(assert) {
 	var done = assert.async();
@@ -240,51 +275,11 @@ QUnit.test('smartMerge a list of items which type has a connection', function(as
 	assert.deepEqual(list.serialize(), data, 'List with a connection should be merged');
 });
 
-QUnit.test('applyPatch', function(assert) {
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 0, insert: [4]}
-	), [1,4,2,3], 'Patch insert' );
-
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 2, insert: [4]}
-	), [1,4], 'Patch delete/insert');
-
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 0, insert: [4]},
-		function(a) { return a * 10; }
-	), [1,40,2,3], 'Patch with makeInstance');
-});
-QUnit.test('applyPatchPure', function(assert) {
-	var list = [1,2,3];
-	var patch = {index: 1, deleteCount: 2, insert: [4]};
-	var patchedList = applyPatchPure( list, patch );
-
-	assert.deepEqual( patchedList, [1,4], 'Patched correctly' );
-	assert.notEqual( list, patchedList, 'Patched list does not reference orig list' );
-	// make sure the original array was not mutated:
-	assert.deepEqual( list, [1,2,3], 'Original list was not mutated' );
-});
 
 
 
-QUnit.test("mergeInstance when properties are removed and added", function(){
-	var map = new DefineMap({a:"A"});
-	mergeInstance(map, {b: "B"});
 
-	QUnit.deepEqual(map.get(), {b: "B"});
-});
 
-QUnit.test("Merging non-defined, but object, types", function(){
-	var first = new Date();
-	var last = new Date();
-	var map = new DefineMap({a: first});
-	mergeInstance(map, {a: last});
-
-	QUnit.equal(map.a, last);
-});
 
 QUnit.test("idFromType", function(assert){
 	var Car = DefineMap.extend({

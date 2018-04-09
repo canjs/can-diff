@@ -1,11 +1,46 @@
 'use strict';
 
+var canReflect = require("can-reflect");
+
 var slice = [].slice;
 // a b c
 // a b c d
 // [[2,0, d]]
 
-var defaultIdentity = function(a, b){ return a === b; };
+
+function defaultIdentity(a, b){
+    return a === b;
+}
+
+function makeIdentityFromMapSchema(typeSchema) {
+    return function identityCheck(a, b) {
+        var aId = canReflect.getIdentity(a, typeSchema),
+            bId = canReflect.getIdentity(b, typeSchema);
+        return aId === bId;
+    };
+}
+
+function makeIdentityFromListSchema(listSchema) {
+    return makeIdentityFromMapSchema( canReflect.getSchema(listSchema.values) );
+}
+
+function makeIdentity(oldList, oldListLength) {
+    var listSchema = canReflect.getSchema(oldList),
+        typeSchema;
+    if(listSchema != null) {
+        typeSchema = canReflect.getSchema(listSchema.values);
+    }
+    if(typeSchema == null && oldListLength > 0) {
+        typeSchema = canReflect.getSchema( canReflect.getKeyValue(oldList, 0) );
+    }
+    if(typeSchema) {
+        return makeIdentityFromMapSchema(typeSchema);
+    } else {
+        return defaultIdentity;
+    }
+}
+
+
 
 function reverseDiff(oldDiffStopIndex, newDiffStopIndex, oldList, newList, identity) {
 	var oldIndex = oldList.length - 1,
@@ -22,6 +57,7 @@ function reverseDiff(oldDiffStopIndex, newDiffStopIndex, oldList, newList, ident
 		} else {
 			// use newIndex because it reflects any deletions
 			return [{
+                type: "splice",
 				index: newDiffStopIndex,
 			 	deleteCount: (oldIndex-oldDiffStopIndex+1),
 			 	insert: slice.call(newList, newDiffStopIndex,newIndex+1)
@@ -31,6 +67,7 @@ function reverseDiff(oldDiffStopIndex, newDiffStopIndex, oldList, newList, ident
 	// if we've reached of either the new or old list
 	// we simply return
 	return [{
+        type: "splice",
 		index: newDiffStopIndex,
 		deleteCount: (oldIndex-oldDiffStopIndex+1),
 		insert: slice.call(newList, newDiffStopIndex,newIndex+1)
@@ -78,14 +115,28 @@ function reverseDiff(oldDiffStopIndex, newDiffStopIndex, oldList, newList, ident
 //    @param {can-util/diff/diff/typedefs.identity} identity(a, b)
 //    @option {*} a
 
-module.exports = /*namespace.diff =*/ function(oldList, newList, identity){
-	identity = identity || defaultIdentity;
-
-	var oldIndex = 0,
+module.exports = /*namespace.diff =*/ function(oldList, newList, schemaOrIdentity){
+    var oldIndex = 0,
 		newIndex =  0,
-		oldLength = oldList.length,
-		newLength = newList.length,
+		oldLength = canReflect.size( oldList ),
+		newLength = canReflect.size( newList ),
 		patches = [];
+
+    var schemaType = typeof schemaOrIdentity,
+        identity;
+    if(schemaType === "function") {
+        identity = schemaOrIdentity;
+    } else if(schemaOrIdentity != null) {
+        if(schemaOrIdentity.type === "map") {
+            identity = makeIdentityFromMapSchema(schemaOrIdentity);
+        } else {
+            identity = makeIdentityFromListSchema(schemaOrIdentity);
+        }
+    } else {
+        identity = makeIdentity(oldList, oldLength);
+    }
+
+
 
 	while(oldIndex < oldLength && newIndex < newLength) {
 		var oldItem = oldList[oldIndex],
@@ -100,7 +151,7 @@ module.exports = /*namespace.diff =*/ function(oldList, newList, identity){
 		// 1 2 3
 		// 1 2 4 3
 		if(  newIndex+1 < newLength && identity( oldItem, newList[newIndex+1] ) ) {
-			patches.push({index: newIndex, deleteCount: 0, insert: [ newList[newIndex] ]});
+			patches.push({index: newIndex, deleteCount: 0, insert: [ newList[newIndex] ], type: "splice"});
 			oldIndex++;
 			newIndex += 2;
 			continue;
@@ -109,7 +160,7 @@ module.exports = /*namespace.diff =*/ function(oldList, newList, identity){
 		// 1 2 3
 		// 1 3
 		else if( oldIndex+1 < oldLength  && identity( oldList[oldIndex+1], newItem ) ) {
-			patches.push({index: newIndex, deleteCount: 1, insert: []});
+			patches.push({index: newIndex, deleteCount: 1, insert: [], type: "splice"});
 			oldIndex += 2;
 			newIndex++;
 			continue;
@@ -134,7 +185,7 @@ module.exports = /*namespace.diff =*/ function(oldList, newList, identity){
 	// a b
 	// a b c d e
 	patches.push(
-				{index: newIndex,
+				{type: "splice", index: newIndex,
 				 deleteCount: oldLength-oldIndex,
 				 insert: slice.call(newList, newIndex) } );
 

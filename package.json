@@ -24,44 +24,24 @@
     "build": "node build.js",
     "develop": "done-serve --static --develop --port 8080"
   },
-  "main": "dist/cjs/can-diff",
-  "browser": {
-    "transform": [
-      "cssify"
-    ]
-  },
-  "browserify": {
-    "transform": [
-      "cssify"
-    ]
-  },
+  "main": "can-diff",
   "keywords": [
     "canjs",
     "donejs",
     "donejs-plugin"
   ],
   "steal": {
-    "main": "can-diff",
-    "configDependencies": [
-      "live-reload"
-    ],
-    "npmIgnore": [
-      "testee",
-      "generator-donejs",
-      "donejs-cli",
-      "steal-tools"
-    ],
-    "plugins": [
-      "steal-less",
-      "steal-stache"
-    ]
+    "main": "can-diff"
   },
   "dependencies": {
+    "can-key-tree": "^1.0.2",
+    "can-queues": "^1.0.1",
     "can-reflect": "^1.14.1"
   },
   "devDependencies": {
     "can-define": "file:../can-define",
     "can-key": "^0.4.0",
+    "can-simple-observable": "^2.0.4",
     "can-symbol": "^1.6.1",
     "done-serve": "^2.0.0",
     "donejs-cli": "^2.0.0",
