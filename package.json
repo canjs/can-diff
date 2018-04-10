@@ -39,13 +39,10 @@
     "can-reflect": "^1.14.1"
   },
   "devDependencies": {
-    "can-define": "file:../can-define",
-    "can-key": "^0.4.0",
+    "can-define": "^2.1.0",
+    "can-key": "<2.0.0",
     "can-simple-observable": "^2.0.4",
     "can-symbol": "^1.6.1",
-    "done-serve": "^2.0.0",
-    "donejs-cli": "^2.0.0",
-    "generator-donejs": "^2.1.0",
     "jshint": "^2.9.1",
     "steal": "^1.6.5",
     "steal-qunit": "^1.0.1",
