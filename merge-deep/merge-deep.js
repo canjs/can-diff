@@ -1,116 +1,118 @@
 var canReflect = require("can-reflect");
 var diffList = require("../list/list");
 
-function smartMerge( instance, props ) {
+function smartMerge(instance, props) {
 
-    props = canReflect.serialize(props);
+	props = canReflect.serialize(props);
 
-	if( canReflect.isMoreListLikeThanMapLike(instance) ) {
-		mergeList( instance, props );
+	if (canReflect.isMoreListLikeThanMapLike(instance)) {
+		mergeList(instance, props);
 	} else {
-		mergeMap( instance, props );
+		mergeMap(instance, props);
 	}
 }
 
 // date is expected to be mutable here
-function mergeMap( instance, data ) {
+function mergeMap(instance, data) {
 
-    // for each key in
-    canReflect.eachKey(instance, function( value, prop ){
+	// for each key in
+	canReflect.eachKey(instance, function(value, prop) {
 
 		var newValue = canReflect.getKeyValue(data, prop);
-        canReflect.deleteKeyValue(data, prop);
+		canReflect.deleteKeyValue(data, prop);
 
-        // cases:
+		// cases:
 		// a. list
 		// b. map
 		// c. primitive
 
-        // if the data is typed, we would just replace it
-        if(canReflect.isPrimitive(value)) {
-            canReflect.setKeyValue(instance,prop, newValue);
-            return;
-        }
+		// if the data is typed, we would just replace it
+		if (canReflect.isPrimitive(value)) {
+			canReflect.setKeyValue(instance, prop, newValue);
+			return;
+		}
 
 
-        var newValueIsList = Array.isArray( newValue ),
-            currentValueIsList = canReflect.isMoreListLikeThanMapLike(value);
+		var newValueIsList = Array.isArray(newValue),
+			currentValueIsList = canReflect.isMoreListLikeThanMapLike(value);
 
-        if( currentValueIsList && newValueIsList ) {
+		if (currentValueIsList && newValueIsList) {
 
-			mergeList( value, newValue );
+			mergeList(value, newValue);
 
-		} else if( !newValueIsList && !currentValueIsList && canReflect.isMapLike( value ) && canReflect.isPlainObject(newValue) ) {
+		} else if (!newValueIsList && !currentValueIsList && canReflect.isMapLike(value) && canReflect.isPlainObject(newValue)) {
 
 			// TODO: the `TYPE` should probably be infered from the `_define` property definition.
-            var schema = canReflect.getSchema(value);
-            if(schema) {
-                var id = canReflect.getIdentity(value, schema);
-                if( id && id === canReflect.getIdentity(newValue, schema) ) {
-                    mergeMap( value, newValue );
-                    return;
-                }
-            }
-            canReflect.setKeyValue(instance, prop, canReflect.new(value.constructor, newValue));
-        } else {
-            canReflect.setKeyValue(instance, prop, newValue);
+			var schema = canReflect.getSchema(value);
+			if (schema) {
+				var id = canReflect.getIdentity(value, schema);
+				if (id && id === canReflect.getIdentity(newValue, schema)) {
+					mergeMap(value, newValue);
+					return;
+				}
+			}
+			canReflect.setKeyValue(instance, prop, canReflect.new(value.constructor, newValue));
+		} else {
+			canReflect.setKeyValue(instance, prop, newValue);
 		}
 	});
-	canReflect.eachKey(data, function(value, prop){
+	canReflect.eachKey(data, function(value, prop) {
 		canReflect.setKeyValue(instance, prop, value);
 	});
 }
 
-function mergeList (list, data) {
-    var ItemType, itemSchema;
+function mergeList(list, data) {
+	var ItemType, itemSchema;
 	var listSchema = canReflect.getSchema(list);
-    if(listSchema) {
-        ItemType = listSchema.values;
-    }
+	if (listSchema) {
+		ItemType = listSchema.values;
+	}
 
-    if(ItemType) {
-        itemSchema = canReflect.getSchema(ItemType);
-    }
-    if(!itemSchema && canReflect.size(list) > 0) {
-        itemSchema = list.getSchema(canReflect.getKeyValue(list, 0));
-    }
+	if (ItemType) {
+		itemSchema = canReflect.getSchema(ItemType);
+	}
+	if (!itemSchema && canReflect.size(list) > 0) {
+		itemSchema = list.getSchema(canReflect.getKeyValue(list, 0));
+	}
 
-	var identity = function(a, b){
-        var aId = canReflect.getIdentity(a, itemSchema),
-            bId = canReflect.getIdentity(b, itemSchema);
+	var identity = function(a, b) {
+		var aId = canReflect.getIdentity(a, itemSchema),
+			bId = canReflect.getIdentity(b, itemSchema);
 		var eq = aId === bId;
-		if(eq) {
+		if (eq) {
 			// If id is the same we merge data in. Case #2
-			mergeMap( a, b );
+			mergeMap(a, b);
 		}
 		return eq;
 	};
 
-    var patches = diffList( list, data , identity );
+	var patches = diffList(list, data, identity);
 
 
 
-	var hydrate = ItemType ? canReflect.new.bind(canReflect, ItemType) : function(v){ return v;};
+	var hydrate = ItemType ? canReflect.new.bind(canReflect, ItemType) : function(v) {
+		return v;
+	};
 
 
 	// If there are no patches then data contains only updates for all of the existing items, and we just leave.
-	if (!patches.length){
+	if (!patches.length) {
 		return list;
 	}
 
 	// Apply patches (add new, remove) #3. For any insertion use a hydrator.
-	patches.forEach(function(patch){
-		applyPatch( list, patch, hydrate );
+	patches.forEach(function(patch) {
+		applyPatch(list, patch, hydrate);
 	});
 }
 
-function applyPatch( list, patch, makeInstance ){
+function applyPatch(list, patch, makeInstance) {
 	// Splice signature compared to patch:
 	//   array.splice(start, deleteCount, item1, item2, ...)
 	//   patch = {index: 1, deleteCount: 0, insert: [1.5]}
-	var insert = makeInstance && patch.insert.map( makeInstance ) || patch.insert;
+	var insert = makeInstance && patch.insert.map(makeInstance) || patch.insert;
 
-	var args = [patch.index, patch.deleteCount].concat( insert );
+	var args = [patch.index, patch.deleteCount].concat(insert);
 	list.splice.apply(list, args);
 
 	return list;
