@@ -35,7 +35,8 @@ QUnit.test("basics", function(assert){
 		insert: []
 	}],"remove one in the middle");
 
-	patches = diff(["a","b","z","f","x"],["a","b","f","w","z"]);
+	patches = diff(["a","b","z","f","x"],
+	                ["a","b","f","w","z"]);
 	assert.deepEqual(patches, [{
 		type: "splice",
 		index: 2,

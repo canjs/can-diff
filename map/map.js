@@ -2,6 +2,11 @@
 
 var canReflect = require('can-reflect');
 
+function defaultIdentity(a, b){
+	return a === b;
+}
+
+
 /**
  * @module {function} can-util/js/diff-object/diff-object diff-object
  * @parent can-util/js
@@ -31,6 +36,8 @@ var canReflect = require('can-reflect');
 module.exports = function(oldObject, newObject){
 	var oldObjectClone,
 		patches = [];
+
+
 
 	// clone oldObject so properties can be deleted
 	oldObjectClone = canReflect.assignMap({}, oldObject);
