@@ -23,11 +23,13 @@ function deepMerge(dest, source, parentKey){
         // any sets we are going to recurse within
         var finalPatches = [];
         patches.forEach(function(patch){
-            var destVal = canReflect.getKeyValue(dest, patch.key),
-                sourceVal = canReflect.getKeyValue(source, patch.key);
-            patch.key = parentKey + patch.key;
+            var key = patch.key;
 
+            patch.key = parentKey + patch.key;
+            var destVal = dest && canReflect.getKeyValue(dest, key),
+                sourceVal = source && canReflect.getKeyValue(source, key);
             if(shouldCheckSet(patch, destVal, sourceVal)) {
+
                 var deepPatches = deepMerge(destVal, sourceVal, patch.key);
                 finalPatches.push.apply(finalPatches, deepPatches);
             } else {
