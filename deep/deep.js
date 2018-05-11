@@ -8,7 +8,7 @@ function shouldCheckSet(patch, destVal, sourceVal) {
         typeof sourceVal === "object";
 }
 
-function deepMerge(dest, source, parentKey){
+function diffDeep(dest, source, parentKey){
 
     if (dest && canReflect.isMoreListLikeThanMapLike(dest)) {
 		return diffList(dest, source).map(function(patch){
@@ -30,7 +30,7 @@ function deepMerge(dest, source, parentKey){
                 sourceVal = source && canReflect.getKeyValue(source, key);
             if(shouldCheckSet(patch, destVal, sourceVal)) {
 
-                var deepPatches = deepMerge(destVal, sourceVal, patch.key);
+                var deepPatches = diffDeep(destVal, sourceVal, patch.key);
                 finalPatches.push.apply(finalPatches, deepPatches);
             } else {
                 finalPatches.push(patch);
@@ -40,4 +40,4 @@ function deepMerge(dest, source, parentKey){
 	}
 }
 
-module.exports = deepMerge;
+module.exports = diffDeep;

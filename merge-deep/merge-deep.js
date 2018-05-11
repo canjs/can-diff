@@ -10,6 +10,7 @@ function smartMerge(instance, props) {
 	} else {
 		mergeMap(instance, props);
 	}
+	return instance;
 }
 
 // date is expected to be mutable here
