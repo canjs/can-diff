@@ -21,7 +21,7 @@ var todo = new Todo({
     assignedTo: [{id: 20, name: "Justin"}, ramiya]
 });
 
-diff.mergeDeep(user, {
+diff.mergeDeep(todo, {
     id: 1,
     name: "mow lawn",
     complete: true,

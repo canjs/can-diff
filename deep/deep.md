@@ -18,7 +18,7 @@ diff.deep({inner: {}}, {inner: {a:'foo'}})
 // }]
 
 
-patches = diffDeep({inner: []}, {inner: ['a']});
+patches = diff.deep({inner: []}, {inner: ['a']});
 //-> [{
 //    key: 'inner',
 //    type: "splice",
