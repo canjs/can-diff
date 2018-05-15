@@ -73,19 +73,32 @@ function mergeList(list, data) {
 		itemSchema = canReflect.getSchema(ItemType);
 	}
 	if (!itemSchema && canReflect.size(list) > 0) {
-		itemSchema = list.getSchema(canReflect.getKeyValue(list, 0));
+		itemSchema = canReflect.getSchema(canReflect.getKeyValue(list, 0));
 	}
 
-	var identity = function(a, b) {
-		var aId = canReflect.getIdentity(a, itemSchema),
-			bId = canReflect.getIdentity(b, itemSchema);
-		var eq = aId === bId;
-		if (eq) {
-			// If id is the same we merge data in. Case #2
-			mergeMap(a, b);
-		}
-		return eq;
-	};
+	var identity;
+	if(itemSchema) {
+		identity = function(a, b) {
+		   var aId = canReflect.getIdentity(a, itemSchema),
+			   bId = canReflect.getIdentity(b, itemSchema);
+		   var eq = aId === bId;
+		   if (eq) {
+			   // If id is the same we merge data in. Case #2
+			   mergeMap(a, b);
+		   }
+		   return eq;
+	   };
+   } else {
+	   identity = function(a, b) {
+		  var eq = a === b;
+		  if (eq) {
+			  // If id is the same we merge data in. Case #2
+			  mergeMap(a, b);
+		  }
+		  return eq;
+	  }
+   }
+
 
 	var patches = diffList(list, data, identity);
 

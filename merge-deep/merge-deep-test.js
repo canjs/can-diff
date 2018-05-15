@@ -185,6 +185,21 @@ QUnit.test('applyPatch', function(assert) {
 	), [1,40,2,3], 'Patch with makeInstance');
 });
 
+
+QUnit.test("able to merge even if no schema exists", function(){
+	var searches = {
+		results: [{}]
+	};
+
+	smartMerge(searches, {
+		results: [{},{}]
+	});
+
+	QUnit.deepEqual(searches, {
+		results: [{},{}]
+	});
+});
+
 /*
 QUnit.test('smartMerge can-connect behavior', function(assert) {
 	var done = assert.async();
