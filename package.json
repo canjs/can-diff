@@ -41,6 +41,8 @@
   "devDependencies": {
     "can-define": "^2.1.0",
     "can-key": "<2.0.0",
+    "can-observation": "file:../can-observation",
+    "can-observation-recorder": "file:../can-observation-recorder",
     "can-simple-observable": "^2.0.4",
     "can-symbol": "^1.6.1",
     "jshint": "^2.9.1",

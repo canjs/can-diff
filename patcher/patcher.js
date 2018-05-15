@@ -133,11 +133,28 @@ Patcher.prototype = {
 		var patches = this.patches;
 		this.patches = [];
 		queues.enqueueByQueue(this.handlers.getNode([]), this.currentList, [patches, this.currentList], null,["Apply patches", patches]);
+	},
+
+	trapPatchBindings: function() {
+		var self = this;
+		this.patchesTrapped = new KeyTree([Object, Map, Array]);
+
+		return function() {
+			var trapped = self.patchesTrapped;
+			self.patchesTrapped = null;
+			return trapped;
+		};
 	}
 };
 
 canReflect.assignSymbols(Patcher.prototype, {
 	"can.onPatches": function(handler, queue) {
+		if(this.patchesTrapped) {
+			// TODO ewwww, just for testing though.
+			handler.isPatch = true;
+			this.patchesTrapped.add([queue || "mutate", this, handler]);
+		}
+
 		this.handlers.add([queue || "mutate", handler]);
 	},
 	"can.offPatches": function(handler, queue) {
