@@ -200,6 +200,12 @@ QUnit.test("able to merge even if no schema exists", function(){
 	});
 });
 
+QUnit.test("dont set undefined properties", function(){
+	var dest = {foo: "bar"};
+	smartMerge(dest, {});
+	QUnit.notOk("foo" in dest, "property deleted");
+});
+
 /*
 QUnit.test('smartMerge can-connect behavior', function(assert) {
 	var done = assert.async();

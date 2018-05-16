@@ -18,7 +18,10 @@ function mergeMap(instance, data) {
 
 	// for each key in
 	canReflect.eachKey(instance, function(value, prop) {
-
+		if(!canReflect.hasKey(data, prop)) {
+			canReflect.deleteKeyValue(instance, prop);
+			return;
+		}
 		var newValue = canReflect.getKeyValue(data, prop);
 		canReflect.deleteKeyValue(data, prop);
 
