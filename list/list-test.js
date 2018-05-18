@@ -2,6 +2,7 @@
 
 var QUnit = require('steal-qunit');
 var diff = require('./list');
+var canReflect = require("can-reflect");
 
 QUnit.module("can-diff/list/list");
 
@@ -102,4 +103,41 @@ QUnit.test("basics", function(assert){
 		deleteCount: 0,
 		insert: [{id:3}]
 	}], 'identity for a single middle insertion');
+});
+
+
+QUnit.test("no .values on provided list schema", function(assert){
+	var patches = diff([], [1,2,3], {type: "list"});
+	assert.deepEqual(patches, [{
+		type: "splice",
+		index: 0,
+		deleteCount: 0,
+		insert: [1,2,3]
+	}], "insert many at end");
+});
+
+QUnit.test("no .values on provided list schema", function(assert){
+	var patches = diff([], [1,2,3], {type: "list"});
+	assert.deepEqual(patches, [{
+		type: "splice",
+		index: 0,
+		deleteCount: 0,
+		insert: [1,2,3]
+	}], "insert many at end");
+
+	var src = [];
+
+	canReflect.assignSymbols(src,{
+		"can.getSchema": function(){
+			return {type: "list"};
+		}
+	});
+
+	patches = diff(src, [1,2,3]);
+	assert.deepEqual(patches, [{
+		type: "splice",
+		index: 0,
+		deleteCount: 0,
+		insert: [1,2,3]
+	}], "insert many at end");
 });

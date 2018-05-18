@@ -21,14 +21,20 @@ function makeIdentityFromMapSchema(typeSchema) {
 }
 
 function makeIdentityFromListSchema(listSchema) {
-    return makeIdentityFromMapSchema( canReflect.getSchema(listSchema.values) );
+    return listSchema.values != null ?
+        makeIdentityFromMapSchema( canReflect.getSchema(listSchema.values) ) :
+        defaultIdentity;
 }
 
 function makeIdentity(oldList, oldListLength) {
     var listSchema = canReflect.getSchema(oldList),
         typeSchema;
     if(listSchema != null) {
-        typeSchema = canReflect.getSchema(listSchema.values);
+        if(listSchema.values != null) {
+            typeSchema = canReflect.getSchema(listSchema.values);
+        } else {
+            return defaultIdentity;
+        }
     }
     if(typeSchema == null && oldListLength > 0) {
         typeSchema = canReflect.getSchema( canReflect.getKeyValue(oldList, 0) );
