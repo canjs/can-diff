@@ -141,3 +141,18 @@ QUnit.test("no .values on provided list schema", function(assert){
 		insert: [1,2,3]
 	}], "insert many at end");
 });
+
+QUnit.test("tollerate no identity keys", function(assert){
+	var obj = canReflect.assignSymbols({id:1},{
+		"can.getSchema": function(){
+			return {type: "map", identity: []};
+		}
+	});
+	var patches = diff([obj,{id:2}], [{id:1},{id:3},{id:2}]);
+	assert.deepEqual(patches, [{
+		type: "splice",
+		index: 0,
+		deleteCount: 2,
+		insert: [{id:1},{id:3},{id:2}]
+	}], 'identity for a single middle insertion');
+});

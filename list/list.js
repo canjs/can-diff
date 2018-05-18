@@ -13,11 +13,15 @@ function defaultIdentity(a, b){
 }
 
 function makeIdentityFromMapSchema(typeSchema) {
-    return function identityCheck(a, b) {
-        var aId = canReflect.getIdentity(a, typeSchema),
-            bId = canReflect.getIdentity(b, typeSchema);
-        return aId === bId;
-    };
+    if(typeSchema.identity && typeSchema.identity.length) {
+        return function identityCheck(a, b) {
+            var aId = canReflect.getIdentity(a, typeSchema),
+                bId = canReflect.getIdentity(b, typeSchema);
+            return aId === bId;
+        };
+    } else {
+        return defaultIdentity;
+    }
 }
 
 function makeIdentityFromListSchema(listSchema) {
