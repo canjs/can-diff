@@ -265,6 +265,26 @@ QUnit.test("objects with schemas and an identity of 0", function(){
 	QUnit.equal(dest.foo.other, "prop", "merged this property");
 });
 
+QUnit.test("lists of objects with schema and no identity", function(){
+	function Bar(val) {
+		this.bar = val;
+	}
+
+	Bar.prototype[canSymbol.for("can.getSchema")] = function(){
+		return {
+			identity: [],
+			keys: {},
+			type: "list"
+		}
+	};
+
+	var dest = [new Bar("foo"), new Bar("bar")];
+	var source = [new Bar("foo")];
+	smartMerge(dest, source);
+
+	QUnit.equal(dest.length, 1, "There is now one bar");
+});
+
 /*
 QUnit.test('smartMerge can-connect behavior', function(assert) {
 	var done = assert.async();
