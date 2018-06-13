@@ -80,7 +80,7 @@ function mergeList(list, data) {
 	}
 
 	var identity;
-	if(itemSchema) {
+	if(itemSchema && itemSchema.identity && itemSchema.identity.length) {
 		identity = function(a, b) {
 		   var aId = canReflect.getIdentity(a, itemSchema),
 			   bId = canReflect.getIdentity(b, itemSchema);
