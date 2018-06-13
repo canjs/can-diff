@@ -206,6 +206,65 @@ QUnit.test("dont set undefined properties", function(){
 	QUnit.notOk("foo" in dest, "property deleted");
 });
 
+QUnit.test("objects with schemas but no identity", function(){
+	function Bar(val) {
+		this.bar = val;
+	}
+
+	Bar.prototype[canSymbol.for("can.getSchema")] = function(){
+		return {
+			keys: {},
+			type: "map"
+		};
+	};
+
+	var dest = {foo: new Bar("bar")};
+	smartMerge(dest, {foo: new Bar("qux")});
+	QUnit.equal(dest.foo.bar.bar, "qux", "now it is qux");
+});
+
+QUnit.test("objects with schemas but empty identity", function(){
+	function Bar(val) {
+		this.bar = val;
+	}
+
+	Bar.prototype[canSymbol.for("can.getSchema")] = function(){
+		return {
+			identity: [],
+			keys: {},
+			type: "map"
+		};
+	};
+
+	var dest = {foo: new Bar("bar")};
+	smartMerge(dest, {foo: new Bar("qux")});
+	QUnit.equal(dest.foo.bar.bar, "qux", "now it is qux");
+});
+
+QUnit.test("objects with schemas and an identity of 0", function(){
+	function Bar(val) {
+		this.bar = val;
+		this.id = 0;
+	}
+
+	Bar.prototype[canSymbol.for("can.getSchema")] = function(){
+		return {
+			identity: ["id"],
+			keys: {},
+			type: "map"
+		};
+	};
+
+	var dest = {foo: new Bar("bar")};
+
+	var sourceBar = new Bar("qux");
+	sourceBar.other = "prop";
+	smartMerge(dest, {foo: sourceBar});
+
+	QUnit.equal(dest.foo.bar, "qux", "now it is qux");
+	QUnit.equal(dest.foo.other, "prop", "merged this property");
+});
+
 /*
 QUnit.test('smartMerge can-connect behavior', function(assert) {
 	var done = assert.async();

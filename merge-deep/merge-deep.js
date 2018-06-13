@@ -48,9 +48,9 @@ function mergeMap(instance, data) {
 
 			// TODO: the `TYPE` should probably be infered from the `_define` property definition.
 			var schema = canReflect.getSchema(value);
-			if (schema) {
+			if (schema && schema.identity && schema.identity.length) {
 				var id = canReflect.getIdentity(value, schema);
-				if (id && id === canReflect.getIdentity(newValue, schema)) {
+				if (id != null && id === canReflect.getIdentity(newValue, schema)) {
 					mergeMap(value, newValue);
 					return;
 				}
