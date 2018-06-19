@@ -2,6 +2,7 @@ var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
 var canSymbol = require("can-symbol");
 var get = require("can-key/get/get");
+var canReflect = require("can-reflect");
 
 var smartMerge = require('./merge-deep');
 
@@ -274,7 +275,7 @@ QUnit.test("lists of objects with schema and no identity", function(){
 		return {
 			identity: [],
 			keys: {},
-			type: "list"
+			type: "map"
 		}
 	};
 
@@ -283,6 +284,24 @@ QUnit.test("lists of objects with schema and no identity", function(){
 	smartMerge(dest, source);
 
 	QUnit.equal(dest.length, 1, "There is now one bar");
+});
+
+QUnit.test("call new with one argument (#7)", function(){
+	var list = [];
+	function Bar(values) {
+		QUnit.equal(arguments.length, 1, "only one arg");
+		this.values = values;
+	}
+	canReflect.assignSymbols(list,{
+		"can.getSchema": function(){
+			return {
+				values: Bar,
+				type: "list"
+			};
+		}
+	});
+
+	smartMerge(list, [{foo: "bar"}]);
 });
 
 /*

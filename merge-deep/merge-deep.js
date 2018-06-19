@@ -127,7 +127,9 @@ function applyPatch(list, patch, makeInstance) {
 	// Splice signature compared to patch:
 	//   array.splice(start, deleteCount, item1, item2, ...)
 	//   patch = {index: 1, deleteCount: 0, insert: [1.5]}
-	var insert = makeInstance && patch.insert.map(makeInstance) || patch.insert;
+	var insert = makeInstance && patch.insert.map(function(val){
+		return makeInstance(val);
+	}) || patch.insert;
 
 	var args = [patch.index, patch.deleteCount].concat(insert);
 	list.splice.apply(list, args);
