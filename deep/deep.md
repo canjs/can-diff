@@ -32,7 +32,7 @@ patches = diff.deep({inner: []}, {inner: ['a']});
 @param {Object} destination The object that will be updated.
 @param {Object} source The object used to update `destination`.
 @return {Array<Patches>} An array of patches objects.  All patch objects will have a `key` property, even
-`"slice"` type patch objects.  The `key` is the property that was changed. A dot (`.`) in the key signifies
+`"splice"` type patch objects.  The `key` is the property that was changed. A dot (`.`) in the key signifies
 that the key was part of a nested property.
 
 @body
