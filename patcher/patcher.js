@@ -61,15 +61,17 @@ var Patcher = function(observableOrList, priority) {
 
 
 	//!steal-remove-start
-	Object.defineProperty(this.onList, "name", {
-		value: "live.list new list::"+canReflect.getName(observableOrList),
-	});
-	Object.defineProperty(this.onPatchesNotify, "name", {
-		value: "live.list notify::"+canReflect.getName(observableOrList),
-	});
-	Object.defineProperty(this.onPatchesDerive, "name", {
-		value: "live.list derive::"+canReflect.getName(observableOrList),
-	});
+	if(process.env.NODE_ENV !== 'production') {
+		Object.defineProperty(this.onList, "name", {
+			value: "live.list new list::"+canReflect.getName(observableOrList),
+		});
+		Object.defineProperty(this.onPatchesNotify, "name", {
+			value: "live.list notify::"+canReflect.getName(observableOrList),
+		});
+		Object.defineProperty(this.onPatchesDerive, "name", {
+			value: "live.list derive::"+canReflect.getName(observableOrList),
+		});
+	}
 	//!steal-remove-end
 };
 
