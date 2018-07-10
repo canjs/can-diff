@@ -1,3 +1,4 @@
+"use strict";
 var diffMap = require("../map/map"),
     diffList = require("../list/list"),
     canReflect = require("can-reflect");
