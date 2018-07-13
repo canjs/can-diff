@@ -2,6 +2,7 @@
 
 var QUnit = require('steal-qunit');
 var diffDeep = require('./deep');
+var canReflect = require("can-reflect");
 
 QUnit.module("can-diff/deep/deep");
 
@@ -149,4 +150,129 @@ QUnit.test("able to do deep", function(assert){
 		insert: ['a']
 	}], "add value to inner");
 
+});
+
+function addSchemaForId(obj){
+	if(Array.isArray(obj)) {
+		return obj.map(addSchemaForId);
+	} else {
+		return canReflect.assignSymbols(obj,{
+			"can.getSchema": function(){
+				return {type: "map", identity: ["id"]};
+			}
+		});
+	}
+
+}
+
+QUnit.test("able to diff a deep list", function(assert){
+	var arr1 = [{a:1}],
+		arr2 = [{a:1}]
+
+	var patches = diffDeep(arr1, arr2);
+	assert.deepEqual(patches,[], "no changes");
+
+
+
+	var obj = canReflect.assignSymbols({id:1, name: "Mike"},{
+		"can.getSchema": function(){
+			return {type: "map", identity: ["id"]};
+		}
+	});
+
+	patches = diffDeep(
+		[obj],
+		[{id: 1, name: "Justin"}]);
+
+	assert.deepEqual(patches, [{
+		key: '0.name',
+		type: 'set',
+		value: 'Justin'
+	}], 'identity used to say two values are the same and patches flow from within');
+
+
+	patches = diffDeep(
+		addSchemaForId([{id: 1}, {id: 2}, {id: 3}, {id: 4}]),
+		addSchemaForId([{id: 1, name: "a"}, {id: 4}, {id: 3}, {id: 2}])
+	)
+
+	assert.deepEqual(patches, [
+		{
+			"key": "0.name",
+			"type": "add",
+			"value": "a"
+		},
+		{
+			"type": "splice",
+			"index": 1,
+			"deleteCount": 3,
+			"insert": [
+				{
+					"id": 4
+				},
+				{
+					"id": 3
+				},
+				{
+					"id": 2
+				}
+			]
+		}
+	])
+
+	patches = diffDeep(
+		addSchemaForId([{id: 1}, {id: 2}, {id: 3}]),
+		addSchemaForId([{id: 1}, {id: 9}, {id: 2}, {id: 3, name: "a"}])
+	);
+	assert.deepEqual(patches, [
+		{
+			"key": "2.name",
+			"type": "add",
+			"value": "a"
+		},
+		{
+			"index": 1,
+			"deleteCount": 0,
+			"insert": [
+				{
+					"id": 9
+				}
+			],
+			"type": "splice"
+		}
+	], "insertion");
+
+
+	patches = diffDeep(
+		{
+			"name": "cheese burger",
+			"instructions": [
+				{
+					"description": "heat meat"
+				},
+				{
+					"description": "add cheese"
+				}
+			],
+			"cookbook": {
+				"title": "Justin's Grillin Times"
+			}
+		},
+		{
+			"name": "cheese burger",
+			"instructions": [
+				{
+					"description": "heat meat"
+				},
+				{
+					"description": "add cheese"
+				}
+			],
+			"cookbook": {
+				"title": "Justin's Grillin Times"
+			}
+		}
+	);
+
+	assert.deepEqual(patches,[]);
 });

@@ -60,7 +60,7 @@ function reverseDiff(oldDiffStopIndex, newDiffStopIndex, oldList, newList, ident
 		var oldItem = oldList[oldIndex],
 			newItem = newList[newIndex];
 
-		if( identity( oldItem, newItem ) ) {
+		if( identity( oldItem, newItem, oldIndex ) ) {
 			oldIndex--;
 			newIndex--;
 			continue;
@@ -172,7 +172,7 @@ module.exports = function(oldList, newList, schemaOrIdentity){
 		var oldItem = oldList[oldIndex],
 			newItem = newList[newIndex];
 
-		if( identity( oldItem, newItem ) ) {
+		if( identity( oldItem, newItem, oldIndex ) ) {
 			oldIndex++;
 			newIndex++;
 			continue;
@@ -180,7 +180,7 @@ module.exports = function(oldList, newList, schemaOrIdentity){
 		// look for single insert, does the next newList item equal the current oldList.
 		// 1 2 3
 		// 1 2 4 3
-		if(  newIndex+1 < newLength && identity( oldItem, newList[newIndex+1] ) ) {
+		if(  newIndex+1 < newLength && identity( oldItem, newList[newIndex+1], oldIndex ) ) {
 			patches.push({index: newIndex, deleteCount: 0, insert: [ newList[newIndex] ], type: "splice"});
 			oldIndex++;
 			newIndex += 2;
@@ -189,7 +189,7 @@ module.exports = function(oldList, newList, schemaOrIdentity){
 		// look for single removal, does the next item in the oldList equal the current newList item.
 		// 1 2 3
 		// 1 3
-		else if( oldIndex+1 < oldLength  && identity( oldList[oldIndex+1], newItem ) ) {
+		else if( oldIndex+1 < oldLength  && identity( oldList[oldIndex+1], newItem, oldIndex+1 ) ) {
 			patches.push({index: newIndex, deleteCount: 1, insert: [], type: "splice"});
 			oldIndex += 2;
 			newIndex++;
