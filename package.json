@@ -1,6 +1,6 @@
 {
   "name": "can-diff",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Diffing helpers for can-reflect",
   "homepage": "http://canjs.com",
   "repository": {
