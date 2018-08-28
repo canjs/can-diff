@@ -97,7 +97,10 @@ function mergeList(list, data) {
 		  var eq = a === b;
 		  if (eq) {
 			  // If id is the same we merge data in. Case #2
-			  mergeMap(a, b);
+			  if(! canReflect.isPrimitive(a) ) {
+				   mergeMap(a, b);
+			  }
+
 		  }
 		  return eq;
 	  }

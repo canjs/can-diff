@@ -304,6 +304,16 @@ QUnit.test("call new with one argument (#7)", function(){
 	smartMerge(list, [{foo: "bar"}]);
 });
 
+
+QUnit.test("can merge array of primitives (#10)", function(){
+	var listA = ["a","b","c"];
+	var listB = ["a","c"];
+
+	smartMerge(listA,listB);
+
+	QUnit.deepEqual(listA,["a","c"]);
+});
+
 /*
 QUnit.test('smartMerge can-connect behavior', function(assert) {
 	var done = assert.async();
