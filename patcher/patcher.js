@@ -95,6 +95,9 @@ Patcher.prototype = {
 		if (this.observableOrList[offValueSymbol]) {
 			canReflect.offValue(this.observableOrList, this.onList, "notify");
 		}
+		if (this.currentList && this.currentList[offPatchesSymbol]) {
+			this.currentList[offPatchesSymbol](this.onPatchesNotify, "notify");
+		}
 	},
 	// listen to the list for patches
 	setupList: function(list) {
