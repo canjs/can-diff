@@ -1,6 +1,7 @@
 @module {Object} can-diff
 @parent can-js-utilities
 @collection can-infrastructure
+@package ./package.json
 
 Utilities for comparing and applying differences between data structures.
 
