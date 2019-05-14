@@ -12,7 +12,8 @@ QUnit.module("can-diff/patcher",{
 });
 
 
-QUnit.test('multiple lists can be updated at once', 2, function(assert) {
+QUnit.test('multiple lists can be updated at once', function(assert) {
+	assert.expect(2);
 	var list = new DefineList(["a","b"]);
 	var p1 = new Patcher(list),
 		p2 = new Patcher(list);
@@ -27,7 +28,8 @@ QUnit.test('multiple lists can be updated at once', 2, function(assert) {
 	list.push("c");
 });
 
-QUnit.test('undefined value won\'t error', 1, function(assert) {
+QUnit.test('undefined value won\'t error', function(assert) {
+	assert.expect(1);
 	var undfinedObservable = new SimpleObservable(undefined);
 	var pu = new Patcher(undfinedObservable);
 
