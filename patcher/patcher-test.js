@@ -6,39 +6,41 @@ var SimpleObservable = require("can-simple-observable");
 var canReflect = require("can-reflect");
 
 QUnit.module("can-diff/patcher",{
-	setup: function(){
+	beforeEach: function(assert) {
 		this.fixture = document.getElementById("qunit-fixture");
 	}
 });
 
 
-QUnit.test('multiple lists can be updated at once', 2, function () {
+QUnit.test('multiple lists can be updated at once', function(assert) {
+	assert.expect(2);
 	var list = new DefineList(["a","b"]);
 	var p1 = new Patcher(list),
 		p2 = new Patcher(list);
 
 	p1[canSymbol.for("can.onPatches")](function(){
-		QUnit.ok(true, "called p1");
+		assert.ok(true, "called p1");
 	});
 	p2[canSymbol.for("can.onPatches")](function(){
-		QUnit.ok(true, "called p2");
+		assert.ok(true, "called p2");
 	});
 
 	list.push("c");
 });
 
-QUnit.test('undefined value won\'t error', 1, function () {
+QUnit.test('undefined value won\'t error', function(assert) {
+	assert.expect(1);
 	var undfinedObservable = new SimpleObservable(undefined);
 	var pu = new Patcher(undfinedObservable);
 
 	pu[canSymbol.for("can.onPatches")](function(){
-		QUnit.ok(true, "called pu");
+		assert.ok(true, "called pu");
 	});
 
 	undfinedObservable.set("a");
 });
 
-QUnit.test("unbinding unbinds from the list (#13)", function(){
+QUnit.test("unbinding unbinds from the list (#13)", function(assert) {
 	// first with a list
 	var ListType = DefineList.extend("ListType",{});
 	var list = new ListType(["a","b"]);
@@ -53,7 +55,7 @@ QUnit.test("unbinding unbinds from the list (#13)", function(){
 	p1[canSymbol.for("can.onPatches")](handler);
 	p1[canSymbol.for("can.offPatches")](handler);
 
-	QUnit.deepEqual(calls, [[list, true], [list, false]], "bound and unbound");
+	assert.deepEqual(calls, [[list, true], [list, false]], "bound and unbound");
 
 	calls = [];
 	var observable = new SimpleObservable(list);
@@ -62,5 +64,5 @@ QUnit.test("unbinding unbinds from the list (#13)", function(){
 	p2[canSymbol.for("can.onPatches")](handler);
 	p2[canSymbol.for("can.offPatches")](handler);
 
-	QUnit.deepEqual(calls, [[list, true], [list, false]], "bound and unbound within observable");
+	assert.deepEqual(calls, [[list, true], [list, false]], "bound and unbound within observable");
 });
