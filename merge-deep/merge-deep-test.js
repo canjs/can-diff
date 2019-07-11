@@ -67,7 +67,7 @@ function prop(prop){
 }
 
 QUnit.module('can-diff/merge-deep', {
-	setup: function(){
+	beforeEach: function(assert) {
 
 		onPatches = [];
 
@@ -76,7 +76,7 @@ QUnit.module('can-diff/merge-deep', {
 		OSProject[canSymbol.for("can.onInstancePatches")](addPatches);
 		OSProject.List[canSymbol.for("can.onInstancePatches")](addPatches);
 	},
-	teardown: function(){
+	afterEach: function(assert) {
 		ContributionMonth[canSymbol.for("can.offInstancePatches")](addPatches);
 		Author[canSymbol.for("can.offInstancePatches")](addPatches);
 		OSProject[canSymbol.for("can.offInstancePatches")](addPatches);
@@ -152,20 +152,20 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	assert.deepEqual(onPatches[0].patch, {type: "splice", deleteCount: 0, index: 1, insert: [item.osProjects[1]]}, 'should dispatch correct events: add, length (for insertion)');
 });
 
-QUnit.test("mergeInstance when properties are removed and added", function(){
+QUnit.test("mergeInstance when properties are removed and added", function(assert) {
 	var map = new DefineMap({a:"A"});
 	smartMerge(map, {b: "B"});
 
-	QUnit.deepEqual(map.get(), {b: "B"});
+	assert.deepEqual(map.get(), {b: "B"});
 });
 
-QUnit.test("Merging non-defined, but object, types", function(){
+QUnit.test("Merging non-defined, but object, types", function(assert) {
 	var first = new Date();
 	var last = new Date();
 	var map = new DefineMap({a: first});
 	smartMerge(map, {a: last});
 
-	QUnit.equal(map.a, last);
+	assert.equal(map.a, last);
 });
 
 QUnit.test('applyPatch', function(assert) {
@@ -187,7 +187,7 @@ QUnit.test('applyPatch', function(assert) {
 });
 
 
-QUnit.test("able to merge even if no schema exists", function(){
+QUnit.test("able to merge even if no schema exists", function(assert) {
 	var searches = {
 		results: [{}]
 	};
@@ -196,18 +196,18 @@ QUnit.test("able to merge even if no schema exists", function(){
 		results: [{},{}]
 	});
 
-	QUnit.deepEqual(searches, {
+	assert.deepEqual(searches, {
 		results: [{},{}]
 	});
 });
 
-QUnit.test("dont set undefined properties", function(){
+QUnit.test("dont set undefined properties", function(assert) {
 	var dest = {foo: "bar"};
 	smartMerge(dest, {});
-	QUnit.notOk("foo" in dest, "property deleted");
+	assert.notOk("foo" in dest, "property deleted");
 });
 
-QUnit.test("objects with schemas but no identity", function(){
+QUnit.test("objects with schemas but no identity", function(assert) {
 	function Bar(val) {
 		this.bar = val;
 	}
@@ -221,10 +221,10 @@ QUnit.test("objects with schemas but no identity", function(){
 
 	var dest = {foo: new Bar("bar")};
 	smartMerge(dest, {foo: new Bar("qux")});
-	QUnit.equal(dest.foo.bar.bar, "qux", "now it is qux");
+	assert.equal(dest.foo.bar.bar, "qux", "now it is qux");
 });
 
-QUnit.test("objects with schemas but empty identity", function(){
+QUnit.test("objects with schemas but empty identity", function(assert) {
 	function Bar(val) {
 		this.bar = val;
 	}
@@ -239,10 +239,10 @@ QUnit.test("objects with schemas but empty identity", function(){
 
 	var dest = {foo: new Bar("bar")};
 	smartMerge(dest, {foo: new Bar("qux")});
-	QUnit.equal(dest.foo.bar.bar, "qux", "now it is qux");
+	assert.equal(dest.foo.bar.bar, "qux", "now it is qux");
 });
 
-QUnit.test("objects with schemas and an identity of 0", function(){
+QUnit.test("objects with schemas and an identity of 0", function(assert) {
 	function Bar(val) {
 		this.bar = val;
 		this.id = 0;
@@ -262,11 +262,11 @@ QUnit.test("objects with schemas and an identity of 0", function(){
 	sourceBar.other = "prop";
 	smartMerge(dest, {foo: sourceBar});
 
-	QUnit.equal(dest.foo.bar, "qux", "now it is qux");
-	QUnit.equal(dest.foo.other, "prop", "merged this property");
+	assert.equal(dest.foo.bar, "qux", "now it is qux");
+	assert.equal(dest.foo.other, "prop", "merged this property");
 });
 
-QUnit.test("lists of objects with schema and no identity", function(){
+QUnit.test("lists of objects with schema and no identity", function(assert) {
 	function Bar(val) {
 		this.bar = val;
 	}
@@ -283,13 +283,13 @@ QUnit.test("lists of objects with schema and no identity", function(){
 	var source = [new Bar("foo")];
 	smartMerge(dest, source);
 
-	QUnit.equal(dest.length, 1, "There is now one bar");
+	assert.equal(dest.length, 1, "There is now one bar");
 });
 
-QUnit.test("call new with one argument (#7)", function(){
+QUnit.test("call new with one argument (#7)", function(assert) {
 	var list = [];
 	function Bar(values) {
-		QUnit.equal(arguments.length, 1, "only one arg");
+		assert.equal(arguments.length, 1, "only one arg");
 		this.values = values;
 	}
 	canReflect.assignSymbols(list,{
@@ -305,13 +305,13 @@ QUnit.test("call new with one argument (#7)", function(){
 });
 
 
-QUnit.test("can merge array of primitives (#10)", function(){
+QUnit.test("can merge array of primitives (#10)", function(assert) {
 	var listA = ["a","b","c"];
 	var listB = ["a","c"];
 
 	smartMerge(listA,listB);
 
-	QUnit.deepEqual(listA,["a","c"]);
+	assert.deepEqual(listA,["a","c"]);
 });
 
 /*
@@ -465,5 +465,5 @@ QUnit.test("use .type for hydrator", function(){
 	var people = new People();
 	mergeList(people,[{first: "R", last: "Wheale"},{first: "J", last: "Meyer"}]);
 
-	QUnit.ok(people[0] instanceof Person);
+	assert.ok(people[0] instanceof Person);
 });*/
