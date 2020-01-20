@@ -7,7 +7,6 @@ var KeyTree = require("can-key-tree");
 var canSymbol = require("can-symbol");
 var diff = require('../list/list');
 var queues = require("can-queues");
-var canSymbol = require("can-symbol");
 
 var onValueSymbol = canSymbol.for("can.onValue"),
 	offValueSymbol = canSymbol.for("can.offValue");
